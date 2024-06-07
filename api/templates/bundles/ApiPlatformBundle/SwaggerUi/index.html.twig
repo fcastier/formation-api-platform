@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>{% if title %}{{ title }} - {% endif %}API Platform</title>
+
+    <link rel="stylesheet" href="{{ asset('bundles/apiplatform/fonts/open-sans/400.css', assetPackage) }}" />
+    <link rel="stylesheet" href="{{ asset('bundles/apiplatform/fonts/open-sans/700.css', assetPackage) }}" />
+    <link rel="stylesheet" href="{{ asset('bundles/apiplatform/swagger-ui/swagger-ui.css', assetPackage) }}" />
+    <link rel="stylesheet" href="{{ asset('bundles/apiplatform/style.css', assetPackage) }}" />
+
+    {% set oauth_data = { oauth: swagger_data.oauth|merge({ redirectUrl: absolute_url(asset('bundles/apiplatform/swagger-ui/oauth2-redirect.html', assetPackage)) }) } %}
+
+    {# json_encode(65) is for JSON_UNESCAPED_SLASHES|JSON_HEX_TAG to avoid JS XSS #}
+    <script id="swagger-data" type="application/json">{{ swagger_data | merge(oauth_data) | json_encode(65) | raw }}</script>
+
+    <style>
+      header::before,
+      header #logo img {
+        background-color: #3b5387;
+      }
+      #swagger-ui.api-platform .info .title {
+        color: #3b5387;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <a id="logo" href="https://webnet.fr"><img src="{{ asset('logo.png') }}" alt="Webnet" /></a>
+    </header>
+
+    <div id="swagger-ui" class="api-platform"></div>
+
+    <div class="swagger-ui" id="formats">
+      <div class="information-container wrapper">
+        <div class="info">
+          Available formats:{% for format in formats|keys %}
+            <a href="{{ path(originalRoute, originalRouteParams|merge({ '_format': format })) }}">{{ format }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% if (reDocEnabled and not swaggerUiEnabled) or (reDocEnabled and 're_doc' == app.request.get('ui', 'swagger_ui')) %}
+      <script src="{{ asset('bundles/apiplatform/redoc/redoc.standalone.js', assetPackage) }}"></script>
+      <script src="{{ asset('bundles/apiplatform/init-redoc-ui.js', assetPackage) }}"></script>
+    {% else %}
+      <script src="{{ asset('bundles/apiplatform/swagger-ui/swagger-ui-bundle.js', assetPackage) }}"></script>
+      <script src="{{ asset('bundles/apiplatform/swagger-ui/swagger-ui-standalone-preset.js', assetPackage) }}"></script>
+      <script src="{{ asset('bundles/apiplatform/init-swagger-ui.js', assetPackage) }}"></script>
+    {% endif %}
+    <script src="{{ asset('bundles/apiplatform/init-common-ui.js', assetPackage) }}" defer></script>
+  </body>
+</html>

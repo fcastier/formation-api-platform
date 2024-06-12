@@ -10,7 +10,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ApiResource(
-    normalizationContext: ['groups' => ['company:read']]
+    normalizationContext: [
+        'groups' => ['company:read'],
+        'enable_max_depth' => true,
+    ],
+    denormalizationContext: [
+        'groups' => ['company:write'],
+        'enable_max_depth' => true,
+    ]
 )]
 class Company
 {
@@ -20,13 +27,14 @@ class Company
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['company:read'])]
+    #[Groups(['company:read', 'company:write', 'employee:read'])]
     private ?string $name = null;
 
     /**
      * @var Collection<int, Employee>
      */
     #[ORM\OneToMany(mappedBy: 'company', targetEntity: Employee::class)]
+    #[Groups(['company:read', 'company:write'])]
     private Collection $employees;
 
     public function __construct()

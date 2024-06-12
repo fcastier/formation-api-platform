@@ -21,17 +21,19 @@ class AppFixtures extends Fixture
             $companies[] = $company;
         }
 
-        $lastEmployee = null;
+        $employees = [];
         for ($i = 0; $i < 10; ++$i) {
             $employee = new Employee();
             $employee->setName($faker->name());
             $employee->setEmail($faker->safeEmail());
-            $employee->setManager($lastEmployee);
+            if ($faker->boolean(80)) {
+                $employee->setManager($faker->randomElement($employees));
+            }
             if ($faker->boolean(70)) {
                 $employee->setCompany($faker->randomElement($companies));
             }
             $manager->persist($employee);
-            $lastEmployee = $employee;
+            $employees[] = $employee;
         }
 
         $manager->flush();
